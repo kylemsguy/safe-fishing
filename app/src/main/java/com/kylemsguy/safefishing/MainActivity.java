@@ -1,10 +1,14 @@
 package com.kylemsguy.safefishing;
 
+import java.io.*;
+import java.util.Arrays;
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.kylemsguy.safefishing.kml.*;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -12,6 +16,13 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+			InputStream is = getAssets().open("doc.kml");
+			System.out.println(Arrays.toString(KmlReader.getPlacemarks(is)));
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     @Override
