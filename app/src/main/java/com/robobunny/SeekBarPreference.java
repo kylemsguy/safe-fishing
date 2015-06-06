@@ -8,8 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -21,7 +21,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
     private final String TAG = getClass().getName();
 
     private static final String ANDROIDNS="http://schemas.android.com/apk/res/android";
-    private static final String APPLICATIONNS="http://robobunny.com";
+    private static final String ROBOBUNNY ="http://schemas.android.com/apk/res-auto";
     private static final int DEFAULT_VALUE = 50;
 
     private int mMaxValue      = 100;
@@ -32,7 +32,8 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
     private String mUnitsRight = "";
     private SeekBar mSeekBar;
 
-    private TextView mStatusText;
+    //private TextView mStatusText;
+    private EditText mStatusText;
 
     public SeekBarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -55,14 +56,14 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
     private void setValuesFromXml(AttributeSet attrs) {
         mMaxValue = attrs.getAttributeIntValue(ANDROIDNS, "max", 100);
-        mMinValue = attrs.getAttributeIntValue(APPLICATIONNS, "min", 0);
+        mMinValue = attrs.getAttributeIntValue(ROBOBUNNY, "min", 0);
 
-        mUnitsLeft = getAttributeStringValue(attrs, APPLICATIONNS, "unitsLeft", "");
-        String units = getAttributeStringValue(attrs, APPLICATIONNS, "units", "");
-        mUnitsRight = getAttributeStringValue(attrs, APPLICATIONNS, "unitsRight", units);
+        mUnitsLeft = getAttributeStringValue(attrs, ROBOBUNNY, "unitsLeft", "");
+        String units = getAttributeStringValue(attrs, ROBOBUNNY, "units", "");
+        mUnitsRight = getAttributeStringValue(attrs, ROBOBUNNY, "unitsRight", units);
 
         try {
-            String newInterval = attrs.getAttributeValue(APPLICATIONNS, "interval");
+            String newInterval = attrs.getAttributeValue(ROBOBUNNY, "interval");
             if(newInterval != null)
                 mInterval = Integer.parseInt(newInterval);
         }
@@ -132,7 +133,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
     protected void updateView(View view) {
 
         try {
-            mStatusText = (TextView) view.findViewById(R.id.seekBarPrefValue);
+            mStatusText = (EditText) view.findViewById(R.id.seekBarPrefValue);
 
             mStatusText.setText(String.valueOf(mCurrentValue));
             mStatusText.setMinimumWidth(30);

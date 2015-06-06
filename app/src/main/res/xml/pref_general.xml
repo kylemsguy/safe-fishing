@@ -12,13 +12,15 @@
             android:defaultValue="true" />
 
         <com.robobunny.SeekBarPreference
-            android:key="speechRate"
-            android:title="Speech speed"
-            android:summary="Adjust reading speed"
+            android:key="alertRadius"
+            android:title="Radius"
+            android:summary="Adjust alert radius"
             android:defaultValue="80"
             android:max="200"
             robobunny:min="1"
             robobunny:unitsLeft=""
-            robobunny:unitsRight="%"/>
+            robobunny:unitsRight="km"/>
+
+        <!-- option for nautical miles vs miles vs km -->
     </PreferenceCategory>
 </PreferenceScreen>
