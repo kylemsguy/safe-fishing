@@ -16,13 +16,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.*;
+
 import com.kylemsguy.fishyfishes.kml.*;
 
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
 
     private static Placemark[] placemarklist;
+	private double radius = 5000; // todo: stop hardcoding this
     private static final long delaySecs = 10;
     private static Handler geoCheckHandler;
     private static Runnable checkRunnable;
@@ -37,13 +41,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+            .findFragmentById(R.id.mainmapfragment);
+        mapFragment.getMapAsync(this);
         try {
 			InputStream is = getAssets().open("doc.kml");
             placemarklist = KmlReader.getPlacemarks(is);
             is.close();
-
-            System.out.println(Arrays.toString(placemarklist));
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -101,6 +105,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public void onMapReady(GoogleMap map){
         // TODO do stuff lol
+		for (Placemark p: placemarklist) {
+			map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(radius));
+		}
     }
 
     @Override
