@@ -5,5 +5,5 @@ package com.kylemsguy.safefishing;
  */
 public class DataImporter {
 
-    public static void import assets
+    //public static void import assets
 }
