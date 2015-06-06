@@ -53,6 +53,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 	private GoogleApiClient mGoogleApiClient;
 	private boolean playServicesConnected = false;
     private static ArrayList<Circle> circles;
+	private boolean runningCheck = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +102,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         };
 
         geoCheckHandler = new Handler();
-        runCheck(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        runningCheck = false;
     }
 
     public static void placemarkNotify(Placemark pm, MainActivity ac){
@@ -122,6 +128,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
+		if (!ac.runningCheck) return false;
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
 		return actuallyRunCheck(ac);
 	}
@@ -269,6 +276,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         for(Circle c:circles){
             c.setRadius(getAlertRadiusMeters(this));
         }
+        runningCheck = true;
+        runCheck(this);
     }
 
     public void onConnectionFailed(ConnectionResult result) {
