@@ -1,4 +1,4 @@
-package com.kylemsguy.safefishing;
+package com.kylemsguy.fishyfishes;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
