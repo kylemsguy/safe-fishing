@@ -12,6 +12,7 @@ public class KmlReader {
 		Placemark[] retval = new Placemark[placemarks.getLength()];
 		for (int i = 0; i < placemarks.getLength(); i++) {
 			Element placemark = (Element) placemarks.item(i);
+			String name = placemark.getElementsByTagName("name").item(0).getTextContent();
 			double lon = Double.parseDouble(placemark.getElementsByTagName("longitude").item(0).getTextContent());
 			double lat = Double.parseDouble(placemark.getElementsByTagName("latitude").item(0).getTextContent());
 			String description = placemark.getElementsByTagName("description").item(0).getTextContent();
@@ -19,6 +20,7 @@ public class KmlReader {
 			a.lat = lat;
 			a.lon = lon;
 			a.description = description;
+			a.name = name;
 			retval[i] = a;
 		}
 		return retval;
