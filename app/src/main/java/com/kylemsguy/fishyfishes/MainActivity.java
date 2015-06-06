@@ -1,6 +1,7 @@
 package com.kylemsguy.fishyfishes;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.support.v7.app.ActionBarActivity;
@@ -15,17 +16,53 @@ import com.kylemsguy.fishyfishes.kml.*;
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
 
+    private static Placemark[] placemarklist;
+    private static final long delaySecs = 5;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         try {
 			InputStream is = getAssets().open("doc.kml");
-			System.out.println(Arrays.toString(KmlReader.getPlacemarks(is)));
-			is.close();
+            placemarklist = KmlReader.getPlacemarks(is);
+            is.close();
+
+            System.out.println(Arrays.toString(placemarklist));
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+        new Thread(){
+            public void run(){
+                try {
+                    Thread.sleep(delaySecs * 1000);
+                    runCheck();
+                } catch(InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }.start();
+    }
+
+    public static boolean runCheck(){
+        return false;
+    }
+
+    public static ArrayList<Placemark> getInRangePlaceMarks(){
+        ArrayList<Placemark> ret = new ArrayList<>();
+        int i = placemarklist.length;
+        while(i-->0){
+            if(inRange(placemarklist[i])){
+                ret.add(placemarklist[i]);
+            }
+        }
+        return ret;
+    }
+
+    public static boolean inRange(Placemark pm){
+        return true;
     }
 
     public void onMapReady(GoogleMap map){
