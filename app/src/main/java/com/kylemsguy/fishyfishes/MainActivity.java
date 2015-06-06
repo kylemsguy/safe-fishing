@@ -4,10 +4,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.LogRecord;
+import java.util.List;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
+import android.app.*;
+import android.content.*;
 import android.location.*;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static MainActivity instance;
 
     private static NotificationCompat.Builder nBuilder;
+	private double geofenceWatchRadius = 500000;
 	private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -118,11 +119,31 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
-        ArrayList<Placemark> marks = getInRangePlaceMarks(ac.getCurrentLocation(), ac.radius);
-        if (marks.size() > 0) {
-			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-			System.out.println(marks);
-		}
+		return actuallyRunCheck(ac);
+	}
+
+    public static boolean actuallyRunCheck(final MainActivity activity){
+        ArrayList<Placemark> marks = getInRangePlaceMarks(activity.getCurrentLocation(), activity.geofenceWatchRadius);
+        final List<Geofence> fences = new ArrayList<Geofence>(marks.size() + 1);
+        for (Placemark mark: marks) {
+            fences.add(new Geofence.Builder().setRequestId(mark.lat + ":" + mark.lon/*mark.name*/).
+                setCircularRegion(mark.lat, mark.lon, (float) activity.radius).
+                setExpirationDuration(Geofence.NEVER_EXPIRE).
+                setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER).
+                build());
+        }
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(fences);
+        final GeofencingRequest request = builder.build();
+        final PendingIntent pendingIntent = activity.getGeofencePendingIntent();
+        LocationServices.GeofencingApi.removeGeofences(activity.mGoogleApiClient, pendingIntent).setResultCallback(
+            new ResultCallback<Status>() {
+                public void onResult(Status s) {
+                    LocationServices.GeofencingApi.addGeofences(activity.mGoogleApiClient, request, pendingIntent);
+                    System.out.println("added geofences: " + fences);
+                }
+            });
         return false;
     }
 
@@ -247,16 +268,24 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         if (args[0].equals("loc")) {
             LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
-            Location loc = new Location("fake");
+            Location loc = new Location("network");
             loc.setLatitude(Double.parseDouble(args[1]));
             loc.setLongitude(Double.parseDouble(args[2]));
-			loc.setAccuracy(10);
-			loc.setTime(System.currentTimeMillis());
-			loc.setElapsedRealtimeNanos(1);
+            loc.setAccuracy(10);
+            loc.setTime(System.currentTimeMillis());
+            loc.setElapsedRealtimeNanos(1);
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, loc);
         } else if (args[0].equals("refresh")) {
             runCheck(MainActivity.this);
         }
+    }
+
+    private PendingIntent getGeofencePendingIntent() {
+        Intent intent = new Intent(this, GeofenceService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
     }
 
 }
