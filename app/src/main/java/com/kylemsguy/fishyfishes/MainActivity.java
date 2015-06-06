@@ -179,7 +179,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             .icon(BitmapDescriptorFactory.defaultMarker(AppConstants.AMMO_MARKER_HUE))
             .position(new LatLng(pm.lat, pm.lon))
             .title(pm.name)
-            .snippet(extractParagraphs(pm.description))
+            .snippet(pm.description)
             );
 
         //map.add
@@ -218,7 +218,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 tvTitle.setText(Html.fromHtml(marker.getTitle()));
                 TextView tvSnippet = ((TextView) v
                         .findViewById(R.id.snippet));
-                tvSnippet.setText(Html.fromHtml(marker.getSnippet()));
+                tvSnippet.setText(Html.fromHtml(extractParagraphs(marker.getSnippet())));
                 return v;
             }
         });
