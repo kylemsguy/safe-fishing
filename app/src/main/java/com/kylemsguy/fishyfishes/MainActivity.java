@@ -12,8 +12,11 @@ import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -21,6 +24,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 
 import com.kylemsguy.fishyfishes.kml.*;
+
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
@@ -76,7 +86,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     public static void placemarkNotify(Placemark pm, MainActivity ac){
-        placemarkNotify(pm,ac,"");
+        placemarkNotify(pm, ac, "");
     }
 
     public static void placemarkNotify(Placemark pm, MainActivity ac, String msg){
@@ -88,7 +98,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         b.append(msg);
         nBuilder.setContentText(b.toString());
         NotificationManager nManager = (NotificationManager) ac.getSystemService(NOTIFICATION_SERVICE);
-        nManager.notify(AppConstants.NOTIFICATION_ID ,nBuilder.build());
+        nManager.notify(AppConstants.NOTIFICATION_ID, nBuilder.build());
     }
 
     public static boolean runCheck(MainActivity ac){
@@ -115,16 +125,57 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public void addMarker(GoogleMap map, Placemark pm){
         map.addMarker(new MarkerOptions()
-            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            .icon(BitmapDescriptorFactory.defaultMarker(AppConstants.AMMO_MARKER_HUE))
             .position(new LatLng(pm.lat, pm.lon))
             .title(pm.name)
-            .snippet(pm.description));
+            .snippet(extractParagraphs(pm.description))
+            );
+
+        //map.add
+    }
+
+    public String extractParagraphs(String xmlText){
+        StringBuilder b = new StringBuilder();
+        try{
+            org.jsoup.nodes.Document res = Jsoup.parse(xmlText);
+            Elements pList = res.getElementsByTag("p");
+            int i = 1;
+            while(i < pList.size()){
+                b.append(pList.get(i).toString());
+                b.append('\n');
+                i++;
+            }
+            return b.toString();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void onMapReady(GoogleMap map){
+        map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                View v = getLayoutInflater().inflate(R.layout.custommarker, null);
+                TextView tvTitle = ((TextView) v
+                        .findViewById(R.id.title));
+                tvTitle.setText(Html.fromHtml(marker.getTitle()));
+                TextView tvSnippet = ((TextView) v
+                        .findViewById(R.id.snippet));
+                tvSnippet.setText(Html.fromHtml(marker.getSnippet()));
+                return v;
+            }
+        });
+
         // TODO do stuff lol
 		for (Placemark p: placemarklist) {
 			map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(radius));
+            addMarker(map, p);
 		}
     }
 
