@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.LogRecord;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,12 +23,18 @@ import com.kylemsguy.fishyfishes.kml.*;
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
 
     private static Placemark[] placemarklist;
-    private static final long delaySecs = 5;
+    private static final long delaySecs = 10;
     private static Handler geoCheckHandler;
     private static Runnable checkRunnable;
 
+    public static MainActivity instance;
+
+    private static NotificationCompat.Builder nBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        instance = this;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         try {
@@ -38,20 +48,39 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 			e.printStackTrace();
 		}
 
+        nBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_plusone_small_off_client)
+                .setContentTitle("Warning");
+
+        // runnable proc to run the geofence check
         checkRunnable = new Runnable() {
             @Override
             public void run() {
-                runCheck();
+                runCheck(MainActivity.this);
             }
         };
 
         geoCheckHandler = new Handler();
-        runCheck();
+        runCheck(this);
     }
 
-    public static boolean runCheck(){
+    public static void placemarkNotify(Placemark pm, MainActivity ac){
+        System.out.println("notify");
+        nBuilder.setContentText("You are within the ammo dump " + pm.name);
+        Intent result = new Intent(ac, MainActivity.class);
+
+        PendingIntent resultPending = PendingIntent.getActivity(
+                ac,0,result,PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        nBuilder.setContentIntent(resultPending);
+        NotificationManager nManager = (NotificationManager) ac.getSystemService(NOTIFICATION_SERVICE);
+        nManager.notify(001,nBuilder.build());
+    }
+
+    public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
+        
         return false;
     }
 
