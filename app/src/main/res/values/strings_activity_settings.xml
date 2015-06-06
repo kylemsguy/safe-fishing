@@ -10,42 +10,6 @@
     <string name="pref_description_notifications">Enable notifications outside of app
     </string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
     <string-array name="DistanceUnits">
         <item>Nautical Miles</item>
         <item>Kilometres</item>
@@ -58,17 +22,16 @@
         <item>@string/mi</item>
     </string-array>
 
+    <string name="km">km</string>
+    <string name="nm">nm</string>
+    <string name="mi">mi</string>
+
+    <string name="km_full">Kilometres</string>
+    <string name="nm_full">Nautical Miles</string>
+    <string name="mi_full">Miles</string>
+
     <string name="pref_title_notification_radius">Radius</string>
     <string name="pref_description_notification_radius"></string>
-
-    <string-array name="pref_array_notification_radius">
-        <!-- You can define as many summaries as you'd like -->
-        <!-- The active summary will reflect the preference's current value -->
-        <item>Small</item> <!-- 0.00 to 0.25 -->
-        <item>Medium</item>   <!-- 0.25 to 0.50 -->
-        <item>Large</item>     <!-- 0.50 to 0.75 -->
-        <item>Extra Large</item>  <!-- 0.75 to 1.00 -->
-    </string-array>
 
     <item name="pref_notification_radius_default" format="float" type="string">0.5</item>
     <string name="slider_message">Optional message displayed in the dialog above the slider</string>
