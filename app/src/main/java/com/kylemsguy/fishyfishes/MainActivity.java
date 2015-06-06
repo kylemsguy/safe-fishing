@@ -57,6 +57,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 	private GoogleApiClient mGoogleApiClient;
 	private boolean playServicesConnected = false;
     private static ArrayList<Circle> circles;
+	private boolean runningCheck = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +106,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         };
 
         geoCheckHandler = new Handler();
-        runCheck(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        runningCheck = false;
     }
 
     public static void placemarkNotify(Placemark pm, MainActivity ac){
@@ -126,7 +132,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
-        me.setDraggable(PreferenceManager.getDefaultSharedPreferences(ac).getBoolean("location_spoof_enable",true));
+        if(me!=null)
+        me.setDraggable(PreferenceManager.getDefaultSharedPreferences(ac).getBoolean("location_spoof_enable",false));
+		if (!ac.runningCheck) return false;
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
 		return actuallyRunCheck(ac);
 	}
@@ -138,8 +146,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static boolean actuallyRunCheck(final MainActivity activity){
 		if (!activity.playServicesConnected) return false;
         Location curr = activity.getCurrentLocation();
-        if(PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("location_spoof_enable",true))
+        if(curr == null) return false;
+        if(!PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("location_spoof_enable",false)) {
             me.setPosition(new LatLng(curr.getLatitude(), curr.getLongitude()));
+            System.out.println(me.getPosition());
+
+        }
+        System.out.println(curr.toString());
         ArrayList<Placemark> marks = getInRangePlaceMarks(curr, getAlertRadiusMeters(activity) * 10);
         final List<Geofence> fences = new ArrayList<Geofence>(marks.size() + 1);
         for (Placemark mark: marks) {
@@ -272,7 +285,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 tvTitle.setText(Html.fromHtml(marker.getTitle()));
                 TextView tvSnippet = ((TextView) v
                         .findViewById(R.id.snippet));
-                tvSnippet.setText(Html.fromHtml(marker.getSnippet()));
+                tvSnippet.setText(Html.fromHtml(extractParagraphs(marker.getSnippet())));
                 return v;
             }
         });
@@ -328,9 +341,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     @Override
     public void onResume(){
         super.onResume();
+        if(playServicesConnected)
+        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
+                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("location_spoof_enable",false));
         for(Circle c:circles){
             c.setRadius(getAlertRadiusMeters(this));
         }
+        runningCheck = true;
+        runCheck(this);
     }
 
     public void onConnectionFailed(ConnectionResult result) {
@@ -340,24 +358,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onConnected(Bundle opt) {
         System.err.println("Connected to Play Services");
 		playServicesConnected = true;
+        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
+                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("location_spoof_enable",false));
     }
 
     public void onConnectionSuspended(int cause) {
-    }
-
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (args[0].equals("loc")) {
-            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
-            Location loc = new Location("network");
-            loc.setLatitude(Double.parseDouble(args[1]));
-            loc.setLongitude(Double.parseDouble(args[2]));
-            loc.setAccuracy(10);
-            loc.setTime(System.currentTimeMillis());
-            loc.setElapsedRealtimeNanos(1);
-            LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, loc);
-        } else if (args[0].equals("refresh")) {
-            runCheck(MainActivity.this);
-        }
     }
 
     private PendingIntent getGeofencePendingIntent() {

@@ -6,21 +6,40 @@
         android:title="@string/general">
 
         <SwitchPreference
+            android:defaultValue="true"
             android:key="notifications_switch"
-            android:title="@string/pref_title_notifications"
             android:summary="@string/pref_description_notifications"
-            android:defaultValue="true" />
+            android:title="@string/pref_title_notifications" />
 
         <com.robobunny.SeekBarPreference
+            android:defaultValue="50"
             android:key="alertRadius"
-            android:title="Radius"
+            android:max="700"
             android:summary="Adjust alert radius"
-            android:defaultValue="80"
-            android:max="200"
+            android:title="Radius"
             robobunny:min="1"
             robobunny:unitsLeft=""
-            robobunny:unitsRight="km"/>
+            robobunny:unitsRight="@string/nm" />
 
         <!-- option for nautical miles vs miles vs km -->
+
+        <ListPreference
+            android:defaultValue="@string/nm"
+            android:entries="@array/DistanceUnits"
+            android:entryValues="@array/DistanceUnitsAlias"
+            android:key="distance_units"
+            android:title="Distance Units" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="debug_settings"
+        android:title="Debug">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="location_spoof_enable"
+            android:summary="Allows dragging of current location marker to debug location"
+            android:title="Spoof Location" />
     </PreferenceCategory>
 </PreferenceScreen>

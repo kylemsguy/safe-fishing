@@ -16,7 +16,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+
+import com.robobunny.SeekBarPreference;
 
 import java.util.List;
 
@@ -52,6 +56,9 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Add 'general' preferences.
         addPreferencesFromResource(R.xml.pref_general);
+
+        bindPreferenceSummaryToValue(findPreference("distance_units"));
+        //bindUnitsToValue(findPreference("distance_units"));
     }
 
 
@@ -75,6 +82,13 @@ public class SettingsActivity extends PreferenceActivity {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
+
+                if(preference.getKey().equals("distance_units")){
+                    SeekBarPreference radiusPreference = (SeekBarPreference) preference.getPreferenceManager()
+                            .findPreference("alertRadius");
+
+                    radiusPreference.setUnitsRight(stringValue);
+                }
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -105,6 +119,7 @@ public class SettingsActivity extends PreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -115,13 +130,6 @@ public class SettingsActivity extends PreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
         }
     }
 
