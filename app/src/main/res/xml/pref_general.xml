@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:robobunny="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:key="general_settings"
+        android:title="@string/general">
+
+        <SwitchPreference
+            android:key="notifications_switch"
+            android:title="@string/pref_title_notifications"
+            android:summary="@string/pref_description_notifications"
+            android:defaultValue="true" />
+
+        <com.robobunny.SeekBarPreference
+            android:key="alertRadius"
+            android:title="Radius"
+            android:summary="Adjust alert radius"
+            android:defaultValue="80"
+            android:max="200"
+            robobunny:min="1"
+            robobunny:unitsLeft=""
+            robobunny:unitsRight="km"/>
+
+        <!-- option for nautical miles vs miles vs km -->
+    </PreferenceCategory>
+</PreferenceScreen>
