@@ -1,5 +1,8 @@
 package com.kylemsguy.fishyfishes;
 
+import java.io.*;
+import java.util.Arrays;
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,6 +10,7 @@ import android.view.MenuItem;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.kylemsguy.fishyfishes.kml.*;
 
 
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
@@ -15,6 +19,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+			InputStream is = getAssets().open("doc.kml");
+			System.out.println(Arrays.toString(KmlReader.getPlacemarks(is)));
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     public void onMapReady(GoogleMap map){
