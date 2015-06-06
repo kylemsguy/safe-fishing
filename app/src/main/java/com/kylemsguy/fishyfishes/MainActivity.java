@@ -15,11 +15,13 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -46,6 +48,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private static final long delaySecs = 10;
     private static Handler geoCheckHandler;
     private static Runnable checkRunnable;
+
+    private static Marker me;
 
     public static MainActivity instance;
 
@@ -128,6 +132,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
+        if(me!=null)
+        me.setDraggable(PreferenceManager.getDefaultSharedPreferences(ac).getBoolean("location_spoof_enable",false));
 		if (!ac.runningCheck) return false;
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
 		return actuallyRunCheck(ac);
@@ -139,7 +145,15 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static boolean actuallyRunCheck(final MainActivity activity){
 		if (!activity.playServicesConnected) return false;
-        ArrayList<Placemark> marks = getInRangePlaceMarks(activity.getCurrentLocation(), getAlertRadiusMeters(activity) * 10);
+        Location curr = activity.getCurrentLocation();
+        if(curr == null) return false;
+        if(!PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("location_spoof_enable",false)) {
+            me.setPosition(new LatLng(curr.getLatitude(), curr.getLongitude()));
+            System.out.println(me.getPosition());
+
+        }
+        System.out.println(curr.toString());
+        ArrayList<Placemark> marks = getInRangePlaceMarks(curr, getAlertRadiusMeters(activity) * 10);
         final List<Geofence> fences = new ArrayList<Geofence>(marks.size() + 1);
         for (Placemark mark: marks) {
             fences.add(new Geofence.Builder().setRequestId(mark.lat + ":" + mark.lon/*mark.name*/).
@@ -182,12 +196,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     public void addMarker(GoogleMap map, Placemark pm){
+
         map.addMarker(new MarkerOptions()
-            .icon(BitmapDescriptorFactory.defaultMarker(AppConstants.AMMO_MARKER_HUE))
-            .position(new LatLng(pm.lat, pm.lon))
-            .title(pm.name)
-            .snippet(pm.description)
-            );
+                        .icon(BitmapDescriptorFactory.defaultMarker(AppConstants.AMMO_MARKER_HUE))
+                        .position(new LatLng(pm.lat, pm.lon))
+                        .title(pm.name)
+                        .snippet(extractParagraphs(pm.description))
+        );
 
         //map.add
     }
@@ -210,7 +225,52 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
     }
 
+    public void sendLoc(double lat, double lon){
+        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
+        Location loc = new Location("network");
+
+        loc.setLatitude(lat);
+        loc.setLongitude(lon);
+        System.out.println(loc.toString());
+        loc.setAccuracy(10);
+        loc.setTime(System.currentTimeMillis());
+        loc.setElapsedRealtimeNanos(1);
+        LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, loc);
+    }
+
     public void onMapReady(GoogleMap map){
+        Location loc = new Location("test");
+        loc.setLongitude(placemarklist[0].lon);
+        loc.setLatitude(placemarklist[0].lat);
+        final GoogleMap m = map;
+
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker arg0) {
+                // TODO Auto-generated method stub
+                Log.d("System out", "onMarkerDragStart..." + arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void onMarkerDragEnd(Marker arg0) {
+                // TODO Auto-generated method stub
+                Log.d("System out", "onMarkerDragEnd..." + arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
+                sendLoc(arg0.getPosition().latitude,
+                        arg0.getPosition().longitude);
+                m.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
+            }
+
+            @Override
+            public void onMarkerDrag(Marker arg0) {
+                // TODO Auto-generated method stub
+                Log.i("System out", "onMarkerDrag...");
+
+            }
+        });
+
+
+
         map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker marker) {
@@ -234,6 +294,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 			circles.add(map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(getAlertRadiusMeters(this))));
             addMarker(map, p);
 		}
+
+        me = map.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.defaultMarker(AppConstants.VLOC_MMARKER_HUE))
+                .draggable(true)
+                .position(new LatLng(loc.getLatitude(), loc.getLongitude()))
+                .title("This is you")
+                .snippet("Lat: " + loc.getLatitude() + "<br>"
+                        +"Lon: " + loc.getLongitude()));
     }
 
 	private Location getCurrentLocation() {
@@ -273,6 +341,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     @Override
     public void onResume(){
         super.onResume();
+        if(playServicesConnected)
+        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
+                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("location_spoof_enable",false));
         for(Circle c:circles){
             c.setRadius(getAlertRadiusMeters(this));
         }
@@ -287,24 +358,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onConnected(Bundle opt) {
         System.err.println("Connected to Play Services");
 		playServicesConnected = true;
+        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
+                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("location_spoof_enable",false));
     }
 
     public void onConnectionSuspended(int cause) {
-    }
-
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (args[0].equals("loc")) {
-            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
-            Location loc = new Location("network");
-            loc.setLatitude(Double.parseDouble(args[1]));
-            loc.setLongitude(Double.parseDouble(args[2]));
-            loc.setAccuracy(10);
-            loc.setTime(System.currentTimeMillis());
-            loc.setElapsedRealtimeNanos(1);
-            LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, loc);
-        } else if (args[0].equals("refresh")) {
-            runCheck(MainActivity.this);
-        }
     }
 
     private PendingIntent getGeofencePendingIntent() {
