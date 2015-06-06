@@ -19,8 +19,16 @@
             android:max="200"
             robobunny:min="1"
             robobunny:unitsLeft=""
-            robobunny:unitsRight="km"/>
+            robobunny:unitsRight="@string/nm"/>
 
         <!-- option for nautical miles vs miles vs km -->
+
+        <ListPreference
+            android:key="distance_units"
+            android:title="Distance Units"
+            android:entries="@array/DistanceUnits"
+            android:entryValues="@array/DistanceUnitsAlias"
+            android:defaultValue="@string/nm"/>
+
     </PreferenceCategory>
 </PreferenceScreen>

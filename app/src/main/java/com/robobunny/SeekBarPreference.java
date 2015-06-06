@@ -36,6 +36,10 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
     private EditText mStatusText;
 
+    public void setUnitsRight(String units){
+        mUnitsRight = units;
+    }
+
     public SeekBarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         initPreference(context, attrs);
