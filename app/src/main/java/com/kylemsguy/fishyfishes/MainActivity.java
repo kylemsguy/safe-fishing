@@ -78,7 +78,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         );
         nBuilder.setContentIntent(resultPending);
         NotificationManager nManager = (NotificationManager) ac.getSystemService(NOTIFICATION_SERVICE);
-        nManager.notify(001,nBuilder.build());
+        nManager.notify(001, nBuilder.build());
     }
 
     public static boolean runCheck(MainActivity ac){
@@ -101,6 +101,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static boolean inRange(Placemark pm){
         return true;
+    }
+
+    public void addMarker(GoogleMap map, Placemark pm){
+        map.addMarker(new MarkerOptions()
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            .position(new LatLng(pm.lat, pm.lon))
+            .title(pm.name)
+            .snippet(pm.description));
     }
 
     public void onMapReady(GoogleMap map){
