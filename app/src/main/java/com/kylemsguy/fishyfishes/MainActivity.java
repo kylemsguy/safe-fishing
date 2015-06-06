@@ -11,6 +11,7 @@ import android.content.*;
 import android.location.*;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
@@ -42,7 +43,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private static Placemark[] placemarklist;
-	private double radius = 5000; // todo: stop hardcoding this
     private static final long delaySecs = 10;
     private static Handler geoCheckHandler;
     private static Runnable checkRunnable;
@@ -50,8 +50,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static MainActivity instance;
 
     private static NotificationCompat.Builder nBuilder;
-	private double geofenceWatchRadius = 500000;
 	private GoogleApiClient mGoogleApiClient;
+	private boolean playServicesConnected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         try {
 			InputStream is = getAssets().open("doc.kml");
             placemarklist = KmlReader.getPlacemarks(is);
+			System.out.println("the placemark list is: " + placemarklist);
             is.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -122,24 +123,30 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 		return actuallyRunCheck(ac);
 	}
 
+	public static float getAlertRadiusMeters(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getInt("alertRadius", 80) * 1000;
+	}
+
     public static boolean actuallyRunCheck(final MainActivity activity){
-        ArrayList<Placemark> marks = getInRangePlaceMarks(activity.getCurrentLocation(), activity.geofenceWatchRadius);
+		if (!activity.playServicesConnected) return false;
+        ArrayList<Placemark> marks = getInRangePlaceMarks(activity.getCurrentLocation(), getAlertRadiusMeters(activity) * 10);
         final List<Geofence> fences = new ArrayList<Geofence>(marks.size() + 1);
         for (Placemark mark: marks) {
             fences.add(new Geofence.Builder().setRequestId(mark.lat + ":" + mark.lon/*mark.name*/).
-                setCircularRegion(mark.lat, mark.lon, (float) activity.radius).
+                setCircularRegion(mark.lat, mark.lon, getAlertRadiusMeters(activity)).
                 setExpirationDuration(Geofence.NEVER_EXPIRE).
                 setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER).
                 build());
         }
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        builder.addGeofences(fences);
-        final GeofencingRequest request = builder.build();
         final PendingIntent pendingIntent = activity.getGeofencePendingIntent();
         LocationServices.GeofencingApi.removeGeofences(activity.mGoogleApiClient, pendingIntent).setResultCallback(
             new ResultCallback<Status>() {
                 public void onResult(Status s) {
+                    if (fences.size() == 0) return;
+                    GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+                    builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+                    builder.addGeofences(fences);
+                    final GeofencingRequest request = builder.build();
                     LocationServices.GeofencingApi.addGeofences(activity.mGoogleApiClient, request, pendingIntent);
                     System.out.println("added geofences: " + fences);
                 }
@@ -213,9 +220,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
-        // TODO do stuff lol
 		for (Placemark p: placemarklist) {
-			map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(radius));
+			map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(getAlertRadiusMeters(this)));
             addMarker(map, p);
 		}
     }
@@ -260,6 +266,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public void onConnected(Bundle opt) {
         System.err.println("Connected to Play Services");
+		playServicesConnected = true;
     }
 
     public void onConnectionSuspended(int cause) {
