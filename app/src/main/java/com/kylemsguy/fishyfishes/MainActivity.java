@@ -52,6 +52,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 .setSmallIcon(R.drawable.ic_plusone_small_off_client)
                 .setContentTitle("Warning");
 
+        Intent result = new Intent(this, MainActivity.class);
+
+        PendingIntent resultPending = PendingIntent.getActivity(
+                this, 0, result, PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        nBuilder.setContentIntent(resultPending);
+
         // runnable proc to run the geofence check
         checkRunnable = new Runnable() {
             @Override
@@ -65,16 +72,19 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     public static void placemarkNotify(Placemark pm, MainActivity ac){
-        System.out.println("notify");
-        nBuilder.setContentText("You are within the ammo dump " + pm.name);
-        Intent result = new Intent(ac, MainActivity.class);
+        placemarkNotify(pm,ac,"");
+    }
 
-        PendingIntent resultPending = PendingIntent.getActivity(
-                ac,0,result,PendingIntent.FLAG_UPDATE_CURRENT
-        );
-        nBuilder.setContentIntent(resultPending);
+    public static void placemarkNotify(Placemark pm, MainActivity ac, String msg){
+        System.out.println("notify");
+        StringBuilder b = new StringBuilder();
+        b.append("You are within the ammo dump ");
+        b.append(pm.name);
+        b.append('\n');
+        b.append(msg);
+        nBuilder.setContentText(b.toString());
         NotificationManager nManager = (NotificationManager) ac.getSystemService(NOTIFICATION_SERVICE);
-        nManager.notify(001,nBuilder.build());
+        nManager.notify(AppConstants.NOTIFICATION_ID ,nBuilder.build());
     }
 
     public static boolean runCheck(MainActivity ac){
