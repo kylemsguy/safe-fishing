@@ -5,9 +5,11 @@ import android.content.res.TypedArray;
 import android.preference.Preference;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -32,7 +34,6 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
     private String mUnitsRight = "";
     private SeekBar mSeekBar;
 
-    //private TextView mStatusText;
     private EditText mStatusText;
 
     public SeekBarPreference(Context context, AttributeSet attrs) {
@@ -90,6 +91,20 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
         LinearLayout layout = (LinearLayout) view;
         layout.setOrientation(LinearLayout.VERTICAL);
 
+        // your text box
+        EditText edit_txt = (EditText) view.findViewById(R.id.seekBarPrefValue);
+
+        edit_txt.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    updatedEntry(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+
         return view;
     }
 
@@ -124,6 +139,34 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
         }
 
         updateView(view);
+    }
+
+    /**
+     * Update a SeekBarPreference view with the state of the EditText
+     * @param view
+     */
+    protected void updatedEntry(View view){
+        try {
+            mStatusText = (EditText) view.findViewById(R.id.seekBarPrefValue);
+
+            mCurrentValue = Integer.parseInt(mStatusText.getText().toString());
+
+            //mStatusText.setText(String.valueOf(mCurrentValue));
+            mStatusText.setMinimumWidth(30);
+
+            mSeekBar.setProgress(mCurrentValue - mMinValue);
+
+            TextView unitsRight = (TextView)view.findViewById(R.id.seekBarPrefUnitsRight);
+            unitsRight.setText(mUnitsRight);
+
+            TextView unitsLeft = (TextView)view.findViewById(R.id.seekBarPrefUnitsLeft);
+            unitsLeft.setText(mUnitsLeft);
+
+        }
+        catch(Exception e) {
+            Log.e(TAG, "Error updating seek bar preference", e);
+        }
+
     }
 
     /**
