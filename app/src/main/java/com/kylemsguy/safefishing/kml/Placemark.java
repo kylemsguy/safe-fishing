@@ -2,8 +2,9 @@ package com.kylemsguy.safefishing.kml;
 
 public class Placemark {
 	public double lat, lon;
+	public String name;
 	public String description;
 	public String toString() {
-		return "lat: " + lat + " lon: " + lon + " description: " + description;
+		return "name: " + name + " lat: " + lat + " lon: " + lon + " description: " + description;
 	}
 }
