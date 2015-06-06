@@ -4,16 +4,15 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.LogRecord;
+import java.util.List;
 
-import android.content.Intent;
-import android.os.Handler;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
+import android.app.*;
+import android.content.*;
+import android.location.*;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +24,10 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 
+import com.google.android.gms.common.*;
+import com.google.android.gms.common.api.*;
+import com.google.android.gms.location.*;
+
 import com.kylemsguy.fishyfishes.kml.*;
 
 import org.jsoup.Jsoup;
@@ -35,7 +38,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
+public class MainActivity extends ActionBarActivity implements OnMapReadyCallback,
+    GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private static Placemark[] placemarklist;
 	private double radius = 5000; // todo: stop hardcoding this
@@ -46,6 +50,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static MainActivity instance;
 
     private static NotificationCompat.Builder nBuilder;
+	private double geofenceWatchRadius = 500000;
+	private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +69,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
+        mGoogleApiClient.connect();
 
         nBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_plusone_small_off_client)
@@ -106,23 +119,49 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
-        
+		return actuallyRunCheck(ac);
+	}
+
+    public static boolean actuallyRunCheck(final MainActivity activity){
+        ArrayList<Placemark> marks = getInRangePlaceMarks(activity.getCurrentLocation(), activity.geofenceWatchRadius);
+        final List<Geofence> fences = new ArrayList<Geofence>(marks.size() + 1);
+        for (Placemark mark: marks) {
+            fences.add(new Geofence.Builder().setRequestId(mark.lat + ":" + mark.lon/*mark.name*/).
+                setCircularRegion(mark.lat, mark.lon, (float) activity.radius).
+                setExpirationDuration(Geofence.NEVER_EXPIRE).
+                setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER).
+                build());
+        }
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(fences);
+        final GeofencingRequest request = builder.build();
+        final PendingIntent pendingIntent = activity.getGeofencePendingIntent();
+        LocationServices.GeofencingApi.removeGeofences(activity.mGoogleApiClient, pendingIntent).setResultCallback(
+            new ResultCallback<Status>() {
+                public void onResult(Status s) {
+                    LocationServices.GeofencingApi.addGeofences(activity.mGoogleApiClient, request, pendingIntent);
+                    System.out.println("added geofences: " + fences);
+                }
+            });
         return false;
     }
 
-    public static ArrayList<Placemark> getInRangePlaceMarks(){
+    public static ArrayList<Placemark> getInRangePlaceMarks(Location loc, double radius){
         ArrayList<Placemark> ret = new ArrayList<>();
         int i = placemarklist.length;
         while(i-- > 0){
-            if(inRange(placemarklist[i])){
+            if(inRange(placemarklist[i], loc, radius)){
                 ret.add(placemarklist[i]);
             }
         }
         return ret;
     }
 
-    public static boolean inRange(Placemark pm){
-        return true;
+    public static boolean inRange(Placemark pm, Location loc, double radius){
+        if (loc == null) return false;
+        return SphericalUtil.computeDistanceBetween(
+            new LatLng(pm.lat, pm.lon), new LatLng(loc.getLatitude(), loc.getLongitude())) <= radius;
     }
 
     public void addMarker(GoogleMap map, Placemark pm){
@@ -181,6 +220,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 		}
     }
 
+	private Location getCurrentLocation() {
+		Location loc = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+		System.out.println(loc);
+		return loc;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -207,4 +253,39 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void onConnectionFailed(ConnectionResult result) {
+        System.err.println("Can't connect to Play Services: " + result);
+    }
+
+    public void onConnected(Bundle opt) {
+        System.err.println("Connected to Play Services");
+    }
+
+    public void onConnectionSuspended(int cause) {
+    }
+
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        if (args[0].equals("loc")) {
+            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
+            Location loc = new Location("network");
+            loc.setLatitude(Double.parseDouble(args[1]));
+            loc.setLongitude(Double.parseDouble(args[2]));
+            loc.setAccuracy(10);
+            loc.setTime(System.currentTimeMillis());
+            loc.setElapsedRealtimeNanos(1);
+            LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, loc);
+        } else if (args[0].equals("refresh")) {
+            runCheck(MainActivity.this);
+        }
+    }
+
+    private PendingIntent getGeofencePendingIntent() {
+        Intent intent = new Intent(this, GeofenceService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+    }
+
 }
