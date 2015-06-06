@@ -17,7 +17,7 @@
     </string-array>
 
     <string-array name="DistanceUnitsAlias">
-        <item>@string/nm</item>
+        <item>@string/nmi</item>
         <item>@string/km</item>
         <item>@string/mi</item>
     </string-array>
