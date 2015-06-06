@@ -52,10 +52,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private static NotificationCompat.Builder nBuilder;
 	private GoogleApiClient mGoogleApiClient;
 	private boolean playServicesConnected = false;
+    private static ArrayList<Circle> circles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
+
+        circles = new ArrayList<>();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -221,7 +224,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         });
 
 		for (Placemark p: placemarklist) {
-			map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(getAlertRadiusMeters(this)));
+			circles.add(map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(getAlertRadiusMeters(this))));
             addMarker(map, p);
 		}
     }
@@ -258,6 +261,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        for(Circle c:circles){
+            c.setRadius(getAlertRadiusMeters(this));
+        }
     }
 
     public void onConnectionFailed(ConnectionResult result) {
