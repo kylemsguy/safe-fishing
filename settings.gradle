@@ -1,2 +1,3 @@
-include ':app', ':SliderPreference'
-project(':SliderPreference').projectDir = new File('libs/SliderPreference')
+include ':app'
+//, ':SliderPreference'
+//project(':SliderPreference').projectDir = new File('libs/SliderPreference')

@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:robobunny="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:key="general_settings"
@@ -10,11 +11,14 @@
             android:summary="@string/pref_description_notifications"
             android:defaultValue="true" />
 
-        <net.jayschwa.android.preference.SliderPreference
-            android:key="alert_radius_slider"
-            android:title="@string/pref_title_notification_radius"
-            android:summary="@array/pref_array_notification_radius"
-            android:defaultValue="@string/pref_notification_radius_default"
-            android:dialogMessage="@string/pref_description_notification_radius" />
+        <com.robobunny.SeekBarPreference
+            android:key="speechRate"
+            android:title="Speech speed"
+            android:summary="Adjust reading speed"
+            android:defaultValue="80"
+            android:max="200"
+            robobunny:min="1"
+            robobunny:unitsLeft=""
+            robobunny:unitsRight="%"/>
     </PreferenceCategory>
 </PreferenceScreen>

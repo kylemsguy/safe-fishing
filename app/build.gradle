@@ -25,5 +25,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:7.5.0'
     compile 'com.android.support:support-v4:22.2.0'
 
-    compile project(":SliderPreference")
+    //compile project(":SliderPreference")
 }
