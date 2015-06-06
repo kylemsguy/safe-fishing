@@ -22,5 +22,12 @@
             robobunny:unitsRight="km"/>
 
         <!-- option for nautical miles vs miles vs km -->
+
+        <ListPreference
+            android:key="distance_units"
+            android:title="Distance Units"
+            android:entries="@array/DistanceUnits"
+            android:entryValues="@array/DistanceUnitsAlias"/>
+
     </PreferenceCategory>
 </PreferenceScreen>
