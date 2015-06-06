@@ -5,15 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.LogRecord;
 
-import android.content.Intent;
-import android.os.Handler;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.location.*;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +24,10 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 
+import com.google.android.gms.common.*;
+import com.google.android.gms.common.api.*;
+import com.google.android.gms.location.*;
+
 import com.kylemsguy.fishyfishes.kml.*;
 
 import org.jsoup.Jsoup;
@@ -35,7 +38,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback {
+public class MainActivity extends ActionBarActivity implements OnMapReadyCallback,
+    GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private static Placemark[] placemarklist;
 	private double radius = 5000; // todo: stop hardcoding this
@@ -46,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static MainActivity instance;
 
     private static NotificationCompat.Builder nBuilder;
+	private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +68,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
+		mGoogleApiClient.connect();
 
         nBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_plusone_small_off_client)
@@ -106,23 +118,29 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static boolean runCheck(MainActivity ac){
         System.out.println("Sched");
         geoCheckHandler.postDelayed(checkRunnable, 1000 * delaySecs);
-        
+        ArrayList<Placemark> marks = getInRangePlaceMarks(ac.getCurrentLocation(), ac.radius);
+        if (marks.size() > 0) {
+			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+			System.out.println(marks);
+		}
         return false;
     }
 
-    public static ArrayList<Placemark> getInRangePlaceMarks(){
+    public static ArrayList<Placemark> getInRangePlaceMarks(Location loc, double radius){
         ArrayList<Placemark> ret = new ArrayList<>();
         int i = placemarklist.length;
         while(i-- > 0){
-            if(inRange(placemarklist[i])){
+            if(inRange(placemarklist[i], loc, radius)){
                 ret.add(placemarklist[i]);
             }
         }
         return ret;
     }
 
-    public static boolean inRange(Placemark pm){
-        return true;
+    public static boolean inRange(Placemark pm, Location loc, double radius){
+        if (loc == null) return false;
+        return SphericalUtil.computeDistanceBetween(
+            new LatLng(pm.lat, pm.lon), new LatLng(loc.getLatitude(), loc.getLongitude())) <= radius;
     }
 
     public void addMarker(GoogleMap map, Placemark pm){
@@ -181,6 +199,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 		}
     }
 
+	private Location getCurrentLocation() {
+		Location loc = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+		System.out.println(loc);
+		return loc;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -207,4 +232,16 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void onConnectionFailed(ConnectionResult result) {
+        System.err.println("Can't connect to Play Services: " + result);
+    }
+
+    public void onConnected(Bundle opt) {
+        System.err.println("Connected to Play Services");
+    }
+
+    public void onConnectionSuspended(int cause) {
+    }
+
 }
