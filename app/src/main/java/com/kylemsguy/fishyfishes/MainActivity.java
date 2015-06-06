@@ -54,7 +54,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static ArrayList<Placemark> getInRangePlaceMarks(){
         ArrayList<Placemark> ret = new ArrayList<>();
         int i = placemarklist.length;
-        while(i-->0){
+        while(i-- > 0){
             if(inRange(placemarklist[i])){
                 ret.add(placemarklist[i]);
             }
@@ -88,6 +88,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            return true;
+        } else if(id == R.id.action_about){
+            // TODO implement about page
             return true;
         }
 
