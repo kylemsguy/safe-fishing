@@ -3,5 +3,8 @@
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
+*.iml
+
+.idea
 /build
 /captures
