@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.LogRecord;
 
+import android.content.Intent;
+import android.os.Handler;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -91,7 +93,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public static ArrayList<Placemark> getInRangePlaceMarks(){
         ArrayList<Placemark> ret = new ArrayList<>();
         int i = placemarklist.length;
-        while(i-->0){
+        while(i-- > 0){
             if(inRange(placemarklist[i])){
                 ret.add(placemarklist[i]);
             }
@@ -126,6 +128,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        } else if(id == R.id.action_about){
+            // TODO implement about page
             return true;
         }
 
