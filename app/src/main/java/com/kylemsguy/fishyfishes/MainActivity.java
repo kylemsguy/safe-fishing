@@ -74,7 +74,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             .addOnConnectionFailedListener(this)
             .addApi(LocationServices.API)
             .build();
-		mGoogleApiClient.connect();
+        mGoogleApiClient.connect();
 
         nBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_plusone_small_off_client)
@@ -242,6 +242,21 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     public void onConnectionSuspended(int cause) {
+    }
+
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        if (args[0].equals("loc")) {
+            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
+            Location loc = new Location("fake");
+            loc.setLatitude(Double.parseDouble(args[1]));
+            loc.setLongitude(Double.parseDouble(args[2]));
+			loc.setAccuracy(10);
+			loc.setTime(System.currentTimeMillis());
+			loc.setElapsedRealtimeNanos(1);
+            LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, loc);
+        } else if (args[0].equals("refresh")) {
+            runCheck(MainActivity.this);
+        }
     }
 
 }
