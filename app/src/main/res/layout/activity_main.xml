@@ -9,8 +9,8 @@
     android:paddingBottom="0dp" tools:context=".MainActivity">
 
     <fragment
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:name="com.google.android.gms.maps.MapFragment"
-    android:id="@+id/mainmapfragment" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/mainmapfragment" />
 </LinearLayout>
