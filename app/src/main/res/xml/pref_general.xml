@@ -19,12 +19,12 @@
             android:title="Radius"
             robobunny:min="1"
             robobunny:unitsLeft=""
-            robobunny:unitsRight="@string/nm" />
+            robobunny:unitsRight="@string/nmi" />
 
         <!-- option for nautical miles vs miles vs km -->
 
         <ListPreference
-            android:defaultValue="@string/nm"
+            android:defaultValue="@string/nmi"
             android:entries="@array/DistanceUnits"
             android:entryValues="@array/DistanceUnitsAlias"
             android:key="distance_units"

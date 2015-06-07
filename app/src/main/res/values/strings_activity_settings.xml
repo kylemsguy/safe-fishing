@@ -17,17 +17,17 @@
     </string-array>
 
     <string-array name="DistanceUnitsAlias">
-        <item>@string/nm</item>
+        <item>@string/nmi</item>
         <item>@string/km</item>
         <item>@string/mi</item>
     </string-array>
 
     <string name="km">km</string>
-    <string name="nm">nmi</string>
+    <string name="nmi">nmi</string>
     <string name="mi">mi</string>
 
     <string name="km_full">Kilometres</string>
-    <string name="nm_full">Nautical Miles</string>
+    <string name="nmi_full">Nautical Miles</string>
     <string name="mi_full">Miles</string>
 
     <string name="pref_title_notification_radius">Radius</string>
