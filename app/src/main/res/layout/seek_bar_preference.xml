@@ -1,5 +1,9 @@
 <RelativeLayout android:id="@android:id/widget_frame" android:layout_width="match_parent" android:layout_height="match_parent" android:paddingBottom="5dp" android:paddingLeft="15dp" android:paddingRight="10dp" android:paddingTop="5dp" xmlns:android="http://schemas.android.com/apk/res/android">
-x
+    <LinearLayout
+        android:id="@+id/center_point"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"/>
 
     <LinearLayout
         android:id="@+id/seekBarPrefTextContainer"
