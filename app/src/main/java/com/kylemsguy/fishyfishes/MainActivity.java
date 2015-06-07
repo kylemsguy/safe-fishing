@@ -167,7 +167,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         ArrayList<Placemark> marks = getInRangePlaceMarks(curr, getAlertRadiusMeters(activity) * 10);
         final List<Geofence> fences = new ArrayList<Geofence>(marks.size() + 1);
         for (Placemark mark: marks) {
-            fences.add(new Geofence.Builder().setRequestId(mark.lat + ":" + mark.lon/*mark.name*/).
+            fences.add(new Geofence.Builder().setRequestId(mark.name).
                 setCircularRegion(mark.lat, mark.lon, getAlertRadiusMeters(activity)).
                 setExpirationDuration(Geofence.NEVER_EXPIRE).
                 setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER).
