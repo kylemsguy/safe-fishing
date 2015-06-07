@@ -351,9 +351,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             startActivity(intent);
             return true;
         } else if(id == R.id.action_about){
-            Uri uri = Uri.parse("https://github.com/kylemsguy/fishy-fishes");
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(intent);
+            Uri url = Uri.parse("https://github.com/kylemsguy/fishy-fishes");
+            Intent browser = new Intent(Intent.ACTION_VIEW, url);
+            startActivity(browser);
             return true;
         } else if(id == R.id.action_focus){
             System.out.println("focus");
