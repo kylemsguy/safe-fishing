@@ -25,12 +25,12 @@ public class GeofenceService extends IntentService {
 		}
 		String geofencesActivated = b.toString();
 		Notification noti = new Notification.Builder(this).
-			setContentTitle(getResources().getString(R.string.geofence_activated)).
-			setContentText(geofencesActivated).
-			setSmallIcon(android.R.drawable.ic_media_pause).
-			setContentIntent(getPendingIntent()).
-			setDefaults(Notification.DEFAULT_ALL).
-			build();
+				setContentTitle(getResources().getString(R.string.geofence_activated)).
+				setContentText(geofencesActivated).
+				setSmallIcon(android.R.drawable.ic_media_pause).
+				setContentIntent(getPendingIntent()).
+				setDefaults(Notification.DEFAULT_ALL).
+				build();
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(1337, noti);
 	}
 
