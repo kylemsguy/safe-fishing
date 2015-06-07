@@ -302,7 +302,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         });
 
 		for (Placemark p: placemarklist) {
-			circles.add(map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(getAlertRadiusMeters(this))));
+			circles.add(map.addCircle(new CircleOptions().center(new LatLng(p.lat, p.lon)).radius(getAlertRadiusMeters(this)).strokeColor(0x99E53935).fillColor(0x55FFCDD2)));
             addMarker(map, p);
 		}
 
