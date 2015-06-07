@@ -27,5 +27,5 @@ Currently, the application obtains hazard locations from the [Center of Non-Prol
 
 ![Homepage](/app/src/main/assets/home.png "Homepage")  ![Notification](/app/src/main/assets/notification.png "Notification")  ![Settings](/app/src/main/assets/settings.png "Settings page")
 
-[slackin]: https://murmuring-eyrie-9747.herokuapp.com/
-[slackin-badge]: https://murmuring-eyrie-9747.herokuapp.com/badge.svg
+[slackin]: https://fishyfishes.herokuapp.com/
+[slackin-badge]: https://fishyfishes.herokuapp.com/badge.svg
