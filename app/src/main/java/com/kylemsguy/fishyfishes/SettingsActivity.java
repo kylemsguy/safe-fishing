@@ -15,6 +15,8 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -42,6 +44,7 @@ public class SettingsActivity extends PreferenceActivity {
         super.onPostCreate(savedInstanceState);
 
         setupSimplePreferencesScreen();
+		removeDebugIfDeviceLiterallyCantEven();
     }
 
     /**
@@ -60,6 +63,18 @@ public class SettingsActivity extends PreferenceActivity {
         bindPreferenceSummaryToValue(findPreference("distance_units"));
         //bindUnitsToValue(findPreference("distance_units"));
     }
+
+	private void removeDebugIfDeviceLiterallyCantEven() {
+		int mock = Settings.Secure.getInt(this.getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0);
+		if (mock == 0) {
+			SwitchPreference spoofPref = (SwitchPreference) findPreference("location_spoof_enable");
+			if (spoofPref != null) {
+				spoofPref.setChecked(false);
+				spoofPref.setEnabled(false);
+				spoofPref.setSummary("Mock locations not enabled in Android developer options");
+			}
+		}
+	}
 
 
     /**

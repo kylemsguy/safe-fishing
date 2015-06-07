@@ -12,6 +12,7 @@ import android.location.*;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
@@ -58,6 +59,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 	private boolean playServicesConnected = false;
     private static ArrayList<Circle> circles;
 	private boolean runningCheck = false;
+	private GoogleMap theMap;
+	private boolean canMock = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             is.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+		canMock = Settings.Secure.getInt(this.getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) != 0;
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		System.out.println("Can mock? " + canMock + ": is mock: " + pref.getBoolean("location_spoof_enable", false));
+		if (!canMock && pref.getBoolean("location_spoof_enable", false)) {
+			pref.edit().putBoolean("location_spoof_enable", false).apply();
+			System.out.println("Disabling mock");
 		}
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -149,8 +160,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         if(curr == null) return false;
         if(!PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("location_spoof_enable",false)) {
             me.setPosition(new LatLng(curr.getLatitude(), curr.getLongitude()));
-            System.out.println(me.getPosition());
-
+			if (activity.theMap != null) activity.theMap.animateCamera(
+				CameraUpdateFactory.newLatLng(new LatLng(curr.getLatitude(), curr.getLongitude())));
         }
         System.out.println(curr.toString());
         ArrayList<Placemark> marks = getInRangePlaceMarks(curr, getAlertRadiusMeters(activity) * 10);
@@ -201,7 +212,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         .icon(BitmapDescriptorFactory.defaultMarker(AppConstants.AMMO_MARKER_HUE))
                         .position(new LatLng(pm.lat, pm.lon))
                         .title(pm.name)
-                        .snippet(extractParagraphs(pm.description))
+                        .snippet(pm.description)
         );
 
         //map.add
@@ -302,6 +313,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 .title("This is you")
                 .snippet("Lat: " + loc.getLatitude() + "<br>"
                         +"Lon: " + loc.getLongitude()));
+		theMap = map;
     }
 
 	private Location getCurrentLocation() {
@@ -342,7 +354,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onResume(){
         super.onResume();
         if(playServicesConnected)
-        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
+        if (canMock) LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
                 PreferenceManager.getDefaultSharedPreferences(this).getBoolean("location_spoof_enable",false));
         for(Circle c:circles){
             c.setRadius(getAlertRadiusMeters(this));
@@ -358,7 +370,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onConnected(Bundle opt) {
         System.err.println("Connected to Play Services");
 		playServicesConnected = true;
-        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
+        if (canMock) LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient,
                 PreferenceManager.getDefaultSharedPreferences(this).getBoolean("location_spoof_enable",false));
     }
 
