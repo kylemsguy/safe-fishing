@@ -9,6 +9,7 @@ import java.util.List;
 import android.app.*;
 import android.content.*;
 import android.location.*;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -350,7 +351,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             startActivity(intent);
             return true;
         } else if(id == R.id.action_about){
-            // TODO implement about page
+            Uri uri = Uri.parse("https://github.com/kylemsguy/fishy-fishes");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
             return true;
         } else if(id == R.id.action_focus){
             System.out.println("focus");
