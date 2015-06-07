@@ -12,7 +12,9 @@
         android:layout_gravity="center_vertical|center_horizontal"
         android:background="#ADD8E6"
         android:gravity="center_vertical|center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -20,7 +22,7 @@
             android:layout_marginRight="5dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_plusone_standard_off_client" />
+            android:src="@drawable/ic_danger" />
 
         <TextView
             android:id="@+id/title"
