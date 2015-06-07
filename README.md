@@ -1,6 +1,8 @@
 SafeFishing [![Slack][slackin-badge]][slackin]
 ============
 
+_Geographical hazard tracking system, for the sea_
+
 A mobile application that informs fishers of areas where chemical weapons and ammunition have been dumped in the world's oceans. Requires Android 4.0.3 and up.
 
 Built for [Fishackathon 2015](http://fishackathon2015.challengepost.com/)
