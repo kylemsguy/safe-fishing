@@ -168,8 +168,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         if(curr == null) return false;
         if(!PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("location_spoof_enable",false)) {
             me.setPosition(new LatLng(curr.getLatitude(), curr.getLongitude()));
-			if (activity.theMap != null) activity.theMap.animateCamera(
-				CameraUpdateFactory.newLatLng(new LatLng(curr.getLatitude(), curr.getLongitude())));
+			
         }
         System.out.println(curr.toString());
         ArrayList<Placemark> marks = getInRangePlaceMarks(curr, getAlertRadiusMeters(activity) * 10);
@@ -352,6 +351,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             return true;
         } else if(id == R.id.action_about){
             // TODO implement about page
+            return true;
+        } else if(id == R.id.action_focus){
+            System.out.println("focus");
+            theMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(me.getPosition().latitude, me.getPosition().longitude)));
             return true;
         }
 
