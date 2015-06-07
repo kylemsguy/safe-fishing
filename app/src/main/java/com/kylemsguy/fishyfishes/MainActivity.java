@@ -356,8 +356,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             startActivity(browser);
             return true;
         } else if(id == R.id.action_focus){
-            System.out.println("focus");
-            theMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(me.getPosition().latitude, me.getPosition().longitude)));
+            LatLng currentLocation = new LatLng(me.getPosition().latitude, me.getPosition().longitude);
+            theMap.animateCamera(CameraUpdateFactory.newLatLng(currentLocation));
+            theMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,15));
+            // Zoom in, animating the camera.
+            theMap.animateCamera(CameraUpdateFactory.zoomIn());
+            // Zoom out to zoom level 10, animating with a duration of 2 seconds.
+            theMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
             return true;
         } else if(id == R.id.action_licenses){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
