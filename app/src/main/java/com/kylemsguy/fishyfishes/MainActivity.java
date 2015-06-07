@@ -165,6 +165,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static boolean actuallyRunCheck(final MainActivity activity){
 		if (!activity.playServicesConnected) return false;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        if (!prefs.getBoolean("notifications_switch", true)) return false;
         Location curr = activity.getCurrentLocation();
         if(curr == null) return false;
         if(!PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("location_spoof_enable",false)) {
