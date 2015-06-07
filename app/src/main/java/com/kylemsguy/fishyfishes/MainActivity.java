@@ -3,8 +3,6 @@ package com.kylemsguy.fishyfishes;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.logging.LogRecord;
 import java.util.List;
 
@@ -63,7 +61,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 	private boolean runningCheck = false;
 	private GoogleMap theMap;
 	private boolean canMock = false;
-	private List<Geofence> currentFences = new ArrayList<Geofence>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,31 +180,6 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER).
                 build());
         }
-		Comparator<Geofence> fenceCompare = new Comparator<Geofence>() {
-			public int compare(Geofence a, Geofence b) {
-				return a.getRequestId().compareTo(b.getRequestId());
-			}
-		};
-		Collections.sort(fences, fenceCompare);
-		boolean needsAddFence = false;
-		Geofence[] fenceArr = new Geofence[0];
-		if (fences.size() != activity.currentFences.size()) {
-			needsAddFence = true;
-		} else {
-			for (int i = 0; i < fences.size(); i++) {
-				Geofence a = fences.get(i);
-				Geofence b = activity.currentFences.get(i);
-				if (!a.getRequestId().equals(b.getRequestId())) {
-					needsAddFence = true;
-					break;
-				}
-			}
-		}
-		if (!needsAddFence) {
-			System.out.println("No need to update geo fences");
-			return false;
-		}
-		activity.currentFences = fences;
         final PendingIntent pendingIntent = activity.getGeofencePendingIntent();
         LocationServices.GeofencingApi.removeGeofences(activity.mGoogleApiClient, pendingIntent).setResultCallback(
             new ResultCallback<Status>() {
