@@ -15,7 +15,7 @@
             android:defaultValue="50"
             android:key="alertRadius"
             android:max="700"
-            android:summary="Adjust alert radius"
+            android:summary="Adjust alert radius                         ."
             android:title="Radius"
             robobunny:min="1"
             robobunny:unitsLeft=""
