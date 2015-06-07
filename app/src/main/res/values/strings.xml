@@ -6,5 +6,8 @@
     <string name="action_about">About</string>
     <string name="general">General</string>
     <string name="geofence_activated">Entering contaminated area!</string>
+    <string name="licenses_title">Licenses</string>
+    <string name="ok">Ok</string>
+    <string name="action_focus">Focus</string>
 
 </resources>

@@ -5,6 +5,8 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_about" android:title="@string/action_about"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_focus" android:title="Focus"
-        android:orderInCategory="100" app:showAsAction="always" />
+    <item android:id="@+id/action_licenses" android:title="@string/licenses_title"
+        android:orderInCategory="100" app:showAsAction="never"/>
+    <item android:id="@+id/action_focus" android:title="@string/action_focus"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
 </menu>

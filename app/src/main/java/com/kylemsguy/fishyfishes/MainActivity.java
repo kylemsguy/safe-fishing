@@ -359,6 +359,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             System.out.println("focus");
             theMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(me.getPosition().latitude, me.getPosition().longitude)));
             return true;
+        } else if(id == R.id.action_licenses){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(this))
+                    .setTitle(R.string.licenses_title);
+            builder.setPositiveButton(R.string.ok, null);
+            builder.show();
         }
 
         return super.onOptionsItemSelected(item);
