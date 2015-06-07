@@ -151,7 +151,15 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 	}
 
 	public static float getAlertRadiusMeters(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context).getInt("alertRadius", 80) * 1000;
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		String convertionFactorName = prefs.getString("distance_units", "nm");
+		double convertionFactor = 1;
+		if (convertionFactorName.equals("nmi")) {
+			convertionFactor = 1.852;
+		} else if (convertionFactorName.equals("mi")) {
+			convertionFactor = 1.609344;
+		}
+		return (float) (prefs.getInt("alertRadius", 50) * convertionFactor * 1000);
 	}
 
     public static boolean actuallyRunCheck(final MainActivity activity){
