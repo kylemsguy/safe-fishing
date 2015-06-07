@@ -97,6 +97,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
         // your text box
         EditText edit_txt = (EditText) view.findViewById(R.id.seekBarPrefValue);
+        edit_txt.requestFocus();
 
         edit_txt.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
