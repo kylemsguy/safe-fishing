@@ -7,11 +7,11 @@ Built for [Fishackathon 2015](http://fishackathon2015.challengepost.com/)
 
 ###Screenshots
 
-![image](/app/src/main/assets/home.png "Homepage")
+![image](/app/src/main/assets/home.png =300x "Homepage")
 
-![image](/app/src/main/assets/notification.png "Notification")
+![image](/app/src/main/assets/notification.png =300x "Notification")
 
-![image](/app/src/main/assets/settings.png "Settings page")
+![image](/app/src/main/assets/settings.png =300x "Settings page")
 
 [slackin]: https://murmuring-eyrie-9747.herokuapp.com/
 [slackin-badge]: https://murmuring-eyrie-9747.herokuapp.com/badge.svg
