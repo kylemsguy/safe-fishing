@@ -17,7 +17,7 @@ public class GeofenceService extends IntentService {
 		// pop up a notification
 		Notification noti = new Notification.Builder(this).
 			setContentTitle("OH NO GEOFENCE HIT!!!11").
-			setSmallIcon(android.R.drawable.ic_media_pause).
+			setSmallIcon(R.drawable.ic_danger).
 			build();
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(1337, noti);
 	}
